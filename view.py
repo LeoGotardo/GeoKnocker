@@ -1,14 +1,15 @@
 from tkinter import messagebox as msg
-from portScanner import PortScanner
+from test import PortScan
 from PIL import Image as img
-from threading import Thread
 from CTkTable import *
 
 import customtkinter as ctk
 import tkinter as tk
+import threading
+import ctypes
 
 
-class CustomThread(Thread):
+class CustomThread(threading.Thread):
     """
     Initialize CustomThread Object
     
@@ -24,23 +25,42 @@ class CustomThread(Thread):
         The return value of the target function if it exists.
     """
     def __init__(self, group=None, target= None, name=None, args=(), kwargs={}, Verbose=None):
-        Thread.__init__(self, group, target, name, args, kwargs)
+        threading.Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
-
+        self._stop_event = threading.Event()
 
     def run(self):
         if self._target is not None:
             self._return = self._target(*self._args, **self._kwargs)
 
     def join(self):
-        Thread.join(self)
+        threading.Thread.join(self)
         return self._return
+    
+    def get_id(self):
+ 
+        # returns id of the respective thread
+        if hasattr(self, '_thread_id'):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+    
+    def raise_exception(self):
+        thread_id = self.get_id()
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
+              ctypes.py_object(SystemExit))
+        if res > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+            print('Exception raise failure')
 
 
 class View(ctk.CTk):
     def __init__(self):
         self.app = ctk.CTk()
-        self.scanner = PortScanner() 
+        self.scanner = PortScan() 
+        
+        self.title = ['Port', 'Status']
         
         self.white = ctk.CTkImage(dark_image=img.open("icons/White.ico"))
         self.dark = ctk.CTkImage(dark_image=img.open("icons/Dark.ico"))
@@ -48,6 +68,7 @@ class View(ctk.CTk):
         self.host = tk.StringVar()
         self.initialPort = tk.StringVar()
         self.finalPort = tk.StringVar()
+        self.switchVar = tk.StringVar(value="-a")
         
         self.priColor = "#1f1f1f"
         self.secColor = "#171717"
@@ -105,6 +126,8 @@ class View(ctk.CTk):
         """
         response = msg.askyesno(title="Exit?", message="Are you sure you want to exit?")
         if response == True:
+            if self.thread.is_alive():
+                self.thread.raise_exception()
             self.app.destroy()
         else:
             pass
@@ -114,8 +137,8 @@ class View(ctk.CTk):
         host = self.host.get()
         initialPort = self.initialPort.get()
         finalPort = self.finalPort.get()
+        port_range = self.switchVar.get()
         
-        title = ['Port', 'Status']
         
         if initialPort == '' or finalPort == '' or host == '':
             msg.showerror(title="Error", message="Please fill in all fields.")
@@ -128,36 +151,48 @@ class View(ctk.CTk):
             msg.showerror(title="Error", message="Please enter valid numbers.")
             return
         
+        if initialPort > finalPort:
+            msg.showerror(title="Error", message="Initial port must be less than final port.")
+            return
+        
+        if initialPort < 1 or finalPort > 65535:
+            msg.showerror(title="Error", message="Ports must be between 1 and 65535.")
+            return
+        
+        self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range, initialPort, finalPort))
+        self.thread.start()
+        
         self.frame.destroy()
         self.loading()
-           
-        thread = CustomThread(target=self.scanner.scanPorts, args=(host, initialPort, finalPort))
-        thread.start()
+        self.app.after(200, self.isalive)
         
-        self.open_ports = thread.join()
+    def isalive(self):
+        if self.thread.is_alive():
+            self.app.after(200, self.isalive)
+        else:
+            self.open_ports = self.thread.join()
+            
+            if self.open_ports == []:
+                msg.showerror(title="Error", message="No ports opened.")
+                self.loadingComplete()
+                self.scanScreen()
+                return
         
-        if self.open_ports == []:
-            msg.showerror(title="Error", message="No ports opened.")
+            if type(self.open_ports) == str:
+                msg.showerror(title="Error", message=self.open_ports)
+                self.loadingComplete()
+                self.scanScreen()
+                return
+        
+            self.open_ports.insert(0, self.title)
+            print(self.open_ports)
             self.loadingComplete()
-            self.scanScreen()
-            return
-        
-        if self.open_ports == "Connection error!":
-            msg.showerror(title="Error", message="Connection Error!")
-            self.loadingComplete()
-            self.scanScreen()
-            return
-        
-        self.open_ports.insert(0, title)
-        print(self.open_ports)
-        self.loadingComplete()
-        self.showPorts()
-        
+            self.showPorts()
+    
     
     def loadingComplete(self):
         self.loadingbar.stop()
         self.loadingFrame.destroy()
-        print('loading complete')
     
     
     def loading(self):
@@ -175,7 +210,6 @@ class View(ctk.CTk):
             - Binds the Return key to trigger the exit method when pressed.
             - Places all widgets within the loading frame with appropriate configurations.
         """
-        print('loading')
         self.loadingFrame = ctk.CTkFrame(master=self.app)
         self.app.title("Loading...")
         self.loadingFrame.place(relx=0.5, rely=0.5, anchor="center")
@@ -268,17 +302,17 @@ class View(ctk.CTk):
             border_color=self.priColor,
         )
         
-        changeTheme = ctk.CTkButton(
+        config = ctk.CTkSwitch(
             master=self.frame,
-            text="",
-            command=lambda:self.theme(changeTheme),
-            font=("RobotoSlab", 12),
-            corner_radius=50,
+            text="Only main ports",
+            variable=self.switchVar,
             fg_color=self.priColor,
-            hover_color=self.secColor,
-            height=10,
-            width=10,
-            image=self.white
+            onvalue="-m",
+            offvalue="-a",
+            font=("RobotoSlab", 12),
+            corner_radius=20,
+            height=40,
+            width=100
         )
         
         scanbtn = ctk.CTkButton(
@@ -293,14 +327,28 @@ class View(ctk.CTk):
             width=100
         )
         
+        changeTheme = ctk.CTkButton(
+            master=self.frame,
+            text="",
+            command=lambda:self.theme(changeTheme),
+            font=("RobotoSlab", 12),
+            corner_radius=50,
+            fg_color=self.priColor,
+            hover_color=self.secColor,
+            height=10,
+            width=10,
+            image=self.white
+        )
+        
         title.place(relx=0.5, rely=0.1, anchor="center")
-        hostText.place(relx=0.25, rely=0.24, anchor="w")
-        hostEntry.place(relx=0.5, rely=0.3, anchor="center")
-        inicialPortText.place(relx=0.25, rely=0.44, anchor="w")
-        initialPortEntry.place(relx=0.5, rely=0.5, anchor="center")
-        finalPortText.place(relx=0.25, rely=0.64, anchor="w")
-        finalPortEntry.place(relx=0.5, rely=0.7, anchor="center")
-        scanbtn.place(relx=0.5, rely=0.8, anchor="center")
+        hostText.place(relx=0.25, rely=0.19, anchor="w")
+        hostEntry.place(relx=0.5, rely=0.25, anchor="center")
+        inicialPortText.place(relx=0.25, rely=0.34, anchor="w")
+        initialPortEntry.place(relx=0.5, rely=0.4, anchor="center")
+        finalPortText.place(relx=0.25, rely=0.49, anchor="w")
+        finalPortEntry.place(relx=0.5, rely=0.55, anchor="center")
+        config.place(relx=0.5, rely=0.65, anchor="center")
+        scanbtn.place(relx=0.5, rely=0.75, anchor="center")
         changeTheme.place(relx=0.5, rely=0.95, anchor="center")
         
         self.app.bind("<Return>", lambda event: self.scan())
@@ -331,7 +379,7 @@ class View(ctk.CTk):
             row=len(self.open_ports),
             column=2,
             values=self.open_ports,
-            width=200,
+            width=125,
             colors=[self.priColor,'#292b29']
         )
         
