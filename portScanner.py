@@ -1,34 +1,66 @@
+from modules import *
+
 import socket
 import sys
-import time
 
-def scan(ip, port_range):
-    ports = [i for i in range(1,65535)]
-    main_ports = [21, 22, 80, 443, 3306, 5000, 8000, 8080, 8291, 8728, 9050]
-    avaliable = {'-m': main_ports, '-p': ports}
-    if port_range in avaliable:
-        for port in avaliable.get(port_range):
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(0.1)
-                s.connect((ip, port))
-                resp = s.recv(1024)
-                if resp:
-                    print(f"[+] {port} - OPEN\n$➜\t{resp.decode()}\n\n")
-            except socket.error:
-                pass
 
-            except KeyboardInterrupt:
-                print('[!] Interrupted\n')
-                quit()
-    else:
-        print('[!] The options are -p for single port and -m for main ports!')
-    return ip, port_range
+
+class PortScan:
+    @staticmethod
+    def scanPorts(ip, port_range, *rangePorts):
+        try:
+            validParameters = ['-a', '-m']
+            
+            if port_range in validParameters:
+                if port_range.lower() == "-a":
+                    if rangePorts:
+                        ports = list(range(rangePorts[0], rangePorts[1] + 1))
+                    else:
+                        ports = list(range(1, 65536))
+                    
+                if port_range.lower() == "-m":
+                    ports = [21, 22, 80, 443, 3306, 5000, 8000, 8080, 8291, 8728, 9050]
+                    
+                openPorts = []
+                for port in ports:
+                    try:
+                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                            s.settimeout(1)
+                            result = s.connect_ex((ip, port))
+                            
+                            if result == 0:
+                                print(f"[+] {port} - OPEN")
+                                openPorts.append({port: 'open'})
+                            s.close()
+                    except socket.error as e:
+                        print(f'Error: {e}')
+                        return str(e)
+                    except KeyboardInterrupt:
+                        print('[!] Interrupted')
+                        quit()
+                return openPorts
+            else:
+                error = '[!] The options are -a for all ports and -m for main ports!'
+                print(error)
+                return error
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return str(e)
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         ip = sys.argv[1]
         port_range = sys.argv[2]
-        scan(ip, port_range)
+        scanner = PortScan()
+        scanner.scanPorts(ip, port_range)
+    elif len(sys.argv) == 5 and sys.argv[2].lower() == '-a':
+        ip = sys.argv[1]
+        port_range = sys.argv[2]
+        start_port = int(sys.argv[3])
+        end_port = int(sys.argv[4])
+        scanner = PortScan()
+        scanner.scanPorts(ip, port_range, start_port, end_port)
     else:
-        print(f'Usage:\n➜\tpython3 portScanner.py IP_Address -a (for all ports)\n➜\tpython3 portScanner.py IP_Address -m (for main ports)')
+        print(f'Usage:\n➜\tpython3 portScanner.py IP_Address -a (for all ports)\n➜\tpython3 portScanner.py IP_Address -a start_port end_port\n➜\tpython3 portScanner.py IP_Address -m (for main ports)')

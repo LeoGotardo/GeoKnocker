@@ -1,5 +1,5 @@
 from tkinter import messagebox as msg
-from test import PortScan
+from portScanner import PortScan
 from PIL import Image as img
 from CTkTable import *
 
