@@ -118,8 +118,8 @@ python portScanner.py 192.168.1.1 -m
 
 ## Contributors
 
-- [Your Name](https://github.com/yourusername) - Initial development
+- [Leonardo Gotardo](https://github.com/LeoGotardo) - Initial development
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/LeoGotardo/Sniffer/blob/main/LICENSE) file for details.
