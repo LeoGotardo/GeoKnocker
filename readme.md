@@ -101,8 +101,9 @@ The configuration options are mostly handled through the GUI, including the host
 ### Command Line Usage
 
 ```sh
-python portScanner.py 192.168.1.1 -a 1 65535
-python portScanner.py 192.168.1.1 -m
+python3 portScanner.py 192.168.1.1 -a (for all ports, from 1 to 65535)
+python3 portScanner.py 192.168.1.1 -a 1 65535
+python3 portScanner.py 192.168.1.1 -m (for the main ports)
 ```
 
 ### GUI Usage
@@ -119,6 +120,7 @@ python portScanner.py 192.168.1.1 -m
 ## Contributors
 
 - [Leonardo Gotardo](https://github.com/LeoGotardo) - Initial development
+- [Espantalho](https://github.com/lilchoppa) - Backend development
 
 ## License
 
