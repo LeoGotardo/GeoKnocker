@@ -21,7 +21,7 @@ The Sniffer application is a graphical tool designed for port scanning using the
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/sniffer.git
+    git clone https://github.com/LeoGotardo/sniffer.git
     cd sniffer
     ```
 
@@ -68,6 +68,8 @@ The Sniffer application is a graphical tool designed for port scanning using the
 - `tkinter`
 - `PIL` (Python Imaging Library)
 - `ctypes`
+- `sys`
+- `sockets`
 
 ## Configuration
 
@@ -91,10 +93,6 @@ The configuration options are mostly handled through the GUI, including the host
 
 - **PortScan**: The main class for performing port scans.
     - `scanPorts(ip, port_range, *rangePorts)`: Scans the specified ports and returns a list of open ports.
-
-### `modules.py`
-
-- **calc**: A decorator for measuring the execution time of functions.
 
 ## Examples
 
