@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Sniffer application is a graphical tool designed for port scanning using the `tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
+The Sniffer application is a graphical tool designed for port scanning using the `sockets, tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
 
 ## Table of Contents
 
