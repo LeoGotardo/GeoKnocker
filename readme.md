@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Sniffer application is a graphical tool designed for port scanning using the `tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
+The Sniffer application is a graphical tool designed for port scanning using the `sockets, tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ The Sniffer application is a graphical tool designed for port scanning using the
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/sniffer.git
+    git clone https://github.com/LeoGotardo/sniffer.git
     cd sniffer
     ```
 
@@ -44,7 +44,8 @@ The Sniffer application is a graphical tool designed for port scanning using the
 ## Usage
 
 1. **Starting the Application:**
-    - Run `python view.py` to start the Sniffer application.
+    - Run `python view.py` to start the GUI Sniffer application.
+    - To run `Sniffer` in terminal, check [Examples](#examples) > Command Line Usage
 
 2. **Performing a Port Scan:**
     - Enter the target host, initial port, and final port in the respective fields.
@@ -68,6 +69,8 @@ The Sniffer application is a graphical tool designed for port scanning using the
 - `tkinter`
 - `PIL` (Python Imaging Library)
 - `ctypes`
+- `sys`
+- `sockets`
 
 ## Configuration
 
@@ -92,17 +95,14 @@ The configuration options are mostly handled through the GUI, including the host
 - **PortScan**: The main class for performing port scans.
     - `scanPorts(ip, port_range, *rangePorts)`: Scans the specified ports and returns a list of open ports.
 
-### `modules.py`
-
-- **calc**: A decorator for measuring the execution time of functions.
-
 ## Examples
 
 ### Command Line Usage
 
 ```sh
-python portScanner.py 192.168.1.1 -a 1 65535
-python portScanner.py 192.168.1.1 -m
+python3 portScanner.py 192.168.1.1 -a (for all ports, from 1 to 65535)
+python3 portScanner.py 192.168.1.1 -a 1 65535
+python3 portScanner.py 192.168.1.1 -m (for the main ports)
 ```
 
 ### GUI Usage
@@ -119,6 +119,7 @@ python portScanner.py 192.168.1.1 -m
 ## Contributors
 
 - [Leonardo Gotardo](https://github.com/LeoGotardo) - Initial development
+- [Espantalho](https://github.com/lilchoppa) - Backend development
 
 ## License
 
