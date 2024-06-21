@@ -45,7 +45,7 @@ The Sniffer application is a graphical tool designed for port scanning using the
 
 1. **Starting the Application:**
     - Run `python view.py` to start the GUI Sniffer application.
-    - To run `Sniffer` in terminal, check [Examples](#examples)
+    - To run `Sniffer` in terminal, check [Examples](#examples) > [Examples](#command-line-usage)
 
 2. **Performing a Port Scan:**
     - Enter the target host, initial port, and final port in the respective fields.
