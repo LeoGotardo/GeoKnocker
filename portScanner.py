@@ -17,7 +17,6 @@ class PortScan:
                         ports = list(range(rangePorts[0], rangePorts[1] + 1))
                     else:
                         ports = list(range(1, 65535))
-                        ports = list(range(1, 65535))
                     
                 if port_option.lower() == "-m":
                     ports = [20, 21, 22, 23, 25, 53, 80, 443, 1194, 3306, 5000, 5432, 8000, 8080, 8291, 8728, 9050]
@@ -54,7 +53,6 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         ip = sys.argv[1]
         port_option = str(sys.argv[2])
-        port_option = str(sys.argv[2])
         scanner = PortScan()
         scanner.scanPorts(ip, port_option)
     elif len(sys.argv) == 5 and sys.argv[2].lower() == '-a':
@@ -63,7 +61,6 @@ if __name__ == '__main__':
         start_port = int(sys.argv[3])
         end_port = int(sys.argv[4])
         scanner = PortScan()
-        scanner.scanPorts(ip, port_option, start_port, end_port)
         scanner.scanPorts(ip, port_option, start_port, end_port)
     else:
         print(f"""Usage:\n
