@@ -1,59 +1,12 @@
 from tkinter import messagebox as msg
 from portScanner import PortScan
 from PIL import Image as img
+from custonThread import CustomThread
 from CTkTable import *
 from icecream import ic
 
 import customtkinter as ctk
 import tkinter as tk
-import threading
-import ctypes
-
-
-class CustomThread(threading.Thread):
-    """
-    Initialize CustomThread Object
-    
-    Args:
-        group(object): Thread Group.
-        target(callabe): Target Function to call when thread starts.
-        name(str): Thread name.
-        args(tuple): arguments to pass to the target function
-        kwargs(dict): keyword arguments to pass to the target function.
-        verbose(bool): Verbosity level.
-        
-    Returns:
-        The return value of the target function if it exists.
-    """
-    def __init__(self, group=None, target= None, name=None, args=(), kwargs={}, Verbose=None):
-        threading.Thread.__init__(self, group, target, name, args, kwargs)
-        self._return = None
-        self._stop_event = threading.Event()
-
-    def run(self):
-        if self._target is not None:
-            self._return = self._target(*self._args, **self._kwargs)
-
-    def join(self):
-        threading.Thread.join(self)
-        return self._return
-    
-    def get_id(self):
- 
-        # returns id of the respective thread
-        if hasattr(self, '_thread_id'):
-            return self._thread_id
-        for id, thread in threading._active.items():
-            if thread is self:
-                return id
-    
-    def raise_exception(self):
-        thread_id = self.get_id()
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
-              ctypes.py_object(SystemExit))
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
-            print('Exception raise failure')
 
 
 class View(ctk.CTk):
@@ -151,6 +104,10 @@ class View(ctk.CTk):
                 msg.showerror(title="Error", message="Please enter valid numbers.")
                 return
             
+            if initialPort == 0 or finalPort == 0:
+                msg.showerror(title="Error", message="Please enter a valid port range.")
+                return
+            
             if initialPort > finalPort:
                 msg.showerror(title="Error", message="Initial port must be less than final port.")
                 return
@@ -183,7 +140,6 @@ class View(ctk.CTk):
             self.app.after(200, self.isalive)
         else:
             self.open_ports = self.thread.join()
-            ic(self.open_ports)
             
             if self.open_ports == []:
                 msg.showerror(title="Error", message="No ports opened.")
@@ -198,7 +154,6 @@ class View(ctk.CTk):
                 return
         
             self.open_ports.insert(0, self.title)
-            print(self.open_ports)
             self.loadingComplete()
             self.showPorts()
     
