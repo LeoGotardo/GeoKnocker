@@ -27,7 +27,6 @@ class PortScan:
                     try:
                         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                             s.settimeout(0.8)
-                            s.settimeout(0.8)
                             result = s.connect_ex((ip, port))
                             if result == 0:
                                 print(f"[+] {port} --> OPEN")
