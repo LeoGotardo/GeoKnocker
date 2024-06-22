@@ -15,16 +15,16 @@ class PortScan:
                         ports = list(range(1, 65535))
                     
                 if port_option.lower() == "-m":
-                    ports = [21, 22, 80, 443, 3306, 5000, 8000, 8080, 8291, 8728, 9050]
+                    ports = [20, 21, 22, 23, 25, 53, 80, 443, 1194, 3306, 5000, 5432, 8000, 8080, 8291, 8728, 9050]
                     
                 openPorts = []
                 for port in ports:
                     try:
                         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                            s.settimeout(0.8)
+                            s.settimeout(1)
                             result = s.connect_ex((ip, port))
                             if result == 0:
-                                print(f"[+] {port} - OPEN")
+                                print(f"[+] {port} --> OPEN")
                                 openPorts.append({port: 'open'})
                             s.close()
 
