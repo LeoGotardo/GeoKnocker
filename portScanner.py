@@ -8,7 +8,6 @@ class PortScan:
     @calc
     @staticmethod
     def scanPorts(ip, port_option, *rangePorts):
-    def scanPorts(ip, port_option, *rangePorts):
         try:
             validParameters = ['-a', '-m']
             
@@ -20,7 +19,6 @@ class PortScan:
                         ports = list(range(1, 65535))
                         ports = list(range(1, 65535))
                     
-                if port_option.lower() == "-m":
                 if port_option.lower() == "-m":
                     ports = [21, 22, 80, 443, 3306, 5000, 8000, 8080, 8291, 8728, 9050]
                     
