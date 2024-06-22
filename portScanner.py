@@ -2,6 +2,7 @@ from alive_progress import alive_bar, config_handler
 from icecream import ic
 from modules import *
 
+import requests
 import socket
 import sys
 import os
@@ -25,7 +26,7 @@ class PortScan:
                     ports = [20, 21, 22, 23, 25, 53, 80, 443, 1194, 3306, 5000, 5432, 8000, 8080, 8291, 8728, 9050]
                     
                 openPorts = []
-                with alive_bar(len(ports), title="Generating your password...") as bar:
+                with alive_bar(len(ports), title="Kniking doors...") as bar:
                     for port in ports:
                         try:
                             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -53,6 +54,29 @@ class PortScan:
             print(f"Error: {e}")
             return str(e)
 
+class geoLocate:
+    @staticmethod
+    def getGeo(ip):
+        try:
+            response = requests.get( f"https://ipinfo.io/{ip}")
+            data = response.json()
+            
+            if 'error' not in data:
+                info = {'country': data['country'],
+                        'city':data['city'],
+                        'location':data['loc'],
+                        'timezone':data['timezone'],
+                        'org':data['org'],
+                        'hostname':data['hostname']}
+                return info
+            else:
+                error = data['error']
+                error = error['message']
+                return f"Error: {error}"
+        except Exception as e:
+            erro = e
+            return f"Error: {e}"
+    
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
