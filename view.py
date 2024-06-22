@@ -2,6 +2,7 @@ from tkinter import messagebox as msg
 from portScanner import PortScan
 from PIL import Image as img
 from CTkTable import *
+from icecream import ic
 
 import customtkinter as ctk
 import tkinter as tk
@@ -70,6 +71,8 @@ class View(ctk.CTk):
         self.finalPort = tk.StringVar()
         self.switchVar = tk.StringVar(value="-a")
         
+        self.thread = None
+        
         self.priColor = "#1f1f1f"
         self.secColor = "#171717"
         
@@ -126,8 +129,9 @@ class View(ctk.CTk):
         """
         response = msg.askyesno(title="Exit?", message="Are you sure you want to exit?")
         if response == True:
-            if self.thread.is_alive():
-                self.thread.raise_exception()
+            if self.thread is not None:
+                if self.thread.is_alive():
+                    self.thread.raise_exception()
             self.app.destroy()
         else:
             pass
@@ -139,38 +143,47 @@ class View(ctk.CTk):
         finalPort = self.finalPort.get()
         port_range = self.switchVar.get()
         
-        
-        if initialPort == '' or finalPort == '' or host == '':
-            msg.showerror(title="Error", message="Please fill in all fields.")
+        if self.switchVar == '-a':
+            try:
+                initialPort = int(initialPort)
+                finalPort = int(finalPort)
+            except ValueError:
+                msg.showerror(title="Error", message="Please enter valid numbers.")
+                return
+            
+            if initialPort > finalPort:
+                msg.showerror(title="Error", message="Initial port must be less than final port.")
+                return
+
+            if initialPort < 1 or finalPort > 65535:
+                msg.showerror(title="Error", message="Ports must be between 1 and 65535.")
+                return
+
+            if initialPort == '' or finalPort == '':
+                msg.showerror(title="Error", message="Please fill in all fields.")
+                return
+            
+            self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range, initialPort, finalPort))
+        else:
+            self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range))
+            
+        if host == '':
+            msg.showerror(title="Error", message="Please fill host field.")
             return
         
-        try:
-            initialPort = int(initialPort)
-            finalPort = int(finalPort)
-        except ValueError:
-            msg.showerror(title="Error", message="Please enter valid numbers.")
-            return
-        
-        if initialPort > finalPort:
-            msg.showerror(title="Error", message="Initial port must be less than final port.")
-            return
-        
-        if initialPort < 1 or finalPort > 65535:
-            msg.showerror(title="Error", message="Ports must be between 1 and 65535.")
-            return
-        
-        self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range, initialPort, finalPort))
         self.thread.start()
         
         self.frame.destroy()
         self.loading()
         self.app.after(200, self.isalive)
         
+        
     def isalive(self):
         if self.thread.is_alive():
             self.app.after(200, self.isalive)
         else:
             self.open_ports = self.thread.join()
+            ic(self.open_ports)
             
             if self.open_ports == []:
                 msg.showerror(title="Error", message="No ports opened.")
