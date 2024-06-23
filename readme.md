@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Sniffer application is a graphical tool designed for port scanning using the `sockets, tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
+The GeoKnocker application is a graphical tool designed for Port Scanning and ip GeoLocation using the `sockets, requests, tkinter` and `customtkinter` libraries for the GUI. It leverages threading for concurrent operations and includes features such as dark/light theme switching and a loading animation. The backend port scanning functionality is implemented using sockets in Python.
 
 ## Table of Contents
 
@@ -21,8 +21,8 @@ The Sniffer application is a graphical tool designed for port scanning using the
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/LeoGotardo/sniffer.git
-    cd sniffer
+    git clone https://github.com/LeoGotardo/GeoKnocker.git
+    cd GeoKnocker
     ```
 
 2. Create a virtual environment and activate it:
@@ -45,7 +45,7 @@ The Sniffer application is a graphical tool designed for port scanning using the
 
 1. **Starting the Application:**
     - Run `python view.py` to start the GUI Sniffer application.
-    - To run `Sniffer` in terminal, check [Examples](#examples) > Command Line Usage
+    - To run `GeoKnocker` in terminal, check [Examples](#examples) > Command Line Usage
 
 2. **Performing a Port Scan:**
     - Enter the target host, initial port, and final port in the respective fields.
@@ -71,6 +71,7 @@ The Sniffer application is a graphical tool designed for port scanning using the
 - `ctypes`
 - `sys`
 - `sockets`
+- `requests`
 
 ## Configuration
 
@@ -93,7 +94,8 @@ The configuration options are mostly handled through the GUI, including the host
 ### `portScanner.py`
 
 - **PortScan**: The main class for performing port scans.
-    - `scanPorts(ip, port_range, *rangePorts)`: Scans the specified ports and returns a list of open ports.
+    - `scanPorts(ip, port_range, *rangePorts)`: Scans the specified ports or a range of ports and returns a list of open ports.
+    - ``
 
 ## Examples
 
@@ -107,7 +109,7 @@ python3 portScanner.py 192.168.1.1 -m (for the main ports)
 
 ### GUI Usage
 
-1. Open the Sniffer application.
+1. Open the GeoKnocker application.
 2. Enter the host, initial port, and final port.
 3. Click "Scan" to start scanning.
 
