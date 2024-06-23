@@ -1,7 +1,7 @@
 alive-progress
 customtkinter
-CTkTable
 icecream
 requests
+CTkTable
 Pillow
 
