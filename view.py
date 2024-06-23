@@ -1,7 +1,7 @@
 from tkinter import messagebox as msg
+from custonThread import CustomThread
 from portScanner import PortScan
 from PIL import Image as img
-from custonThread import CustomThread
 from CTkTable import *
 from icecream import ic
 
