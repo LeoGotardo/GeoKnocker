@@ -1,7 +1,7 @@
-Pillow==9.3.0
-customtkinter==4.6.3
-icecream==2.1.1
-alive-progress==2.4.1
-requests==2.28.1
+alive-progress
+customtkinter
+icecream
+requests
 CTkTable
+Pillow
 
