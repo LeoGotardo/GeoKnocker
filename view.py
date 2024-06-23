@@ -1,10 +1,11 @@
 from tkinter import messagebox as msg
-from custonThread import CustomThread
 from portScanner import PortScan
 from PIL import Image as img
+from custonThread import CustomThread
 from CTkTable import *
 from icecream import ic
 
+import tkintermapview as tkmap
 import customtkinter as ctk
 import tkinter as tk
 
@@ -22,7 +23,7 @@ class View(ctk.CTk):
         self.host = tk.StringVar()
         self.initialPort = tk.StringVar()
         self.finalPort = tk.StringVar()
-        self.switchVar = tk.StringVar(value="-a")
+        self.switchVar = tk.StringVar(value="-m")
         
         self.thread = None
         
@@ -94,7 +95,7 @@ class View(ctk.CTk):
         host = self.host.get()
         initialPort = self.initialPort.get()
         finalPort = self.finalPort.get()
-        port_range = self.switchVar.get()
+        port_mode = self.switchVar.get()
         
         if self.switchVar == '-a':
             try:
@@ -120,9 +121,9 @@ class View(ctk.CTk):
                 msg.showerror(title="Error", message="Please fill in all fields.")
                 return
             
-            self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range, initialPort, finalPort))
+            self.thread = CustomThread(target=self.scanner.scanPorts, kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'})
         else:
-            self.thread = CustomThread(target=self.scanner.scanPorts, args=(host, port_range))
+            self.thread = CustomThread(target=self.scanner.scanPorts, kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'})
             
         if host == '':
             msg.showerror(title="Error", message="Please fill host field.")
@@ -139,7 +140,13 @@ class View(ctk.CTk):
         if self.thread.is_alive():
             self.app.after(200, self.isalive)
         else:
-            self.open_ports = self.thread.join()
+            self.open_ports, self.geo = self.thread.join()
+            
+            if type(self.geo) == str:
+                self.geo = {'lat':'-15.2480952 ','lon':'-124.1015625', 'city':'No Location', 'country':'Unknown'}
+                self.loadingComplete()
+                self.showPorts()
+                return
             
             if self.open_ports == []:
                 msg.showerror(title="Error", message="No ports opened.")
@@ -324,6 +331,7 @@ class View(ctk.CTk):
     
     def showPorts(self):
         self.frame.destroy()
+        self.app.geometry("900x600")
         self.frame = ctk.CTkFrame(master=self.app, width=400, height=500)
         self.frame.pack(fill="both", expand=True)
         
@@ -336,7 +344,7 @@ class View(ctk.CTk):
         tableFixFrame = ctk.CTkScrollableFrame(
             master=self.frame,
             width=250,
-            height=300)
+            height=400)
         
         tableFrame = ctk.CTkFrame(
             master=tableFixFrame,
@@ -351,6 +359,16 @@ class View(ctk.CTk):
             colors=[self.priColor,'#292b29']
         )
         
+        map = tkmap.TkinterMapView(
+            self.frame,
+            width=500,
+            height=400,
+            corner_radius=20,
+        )
+        
+        map.set_position(float(self.geo['lat']), float(self.geo['lon']), marker=True, text='{}, {}'.format(self.geo['city'], self.geo['country']))
+        map.set_zoom(15)
+        
         back = ctk.CTkButton(
             master=self.frame,
             text="New Scan",
@@ -364,9 +382,10 @@ class View(ctk.CTk):
         )
         
         title.place(relx=0.5, rely=0.1, anchor="center")
-        tableFixFrame.place(relx=0.5, rely=0.2, anchor="n")
+        tableFixFrame.place(relx=0.2, rely=0.18, anchor="n")
         tableFrame.pack(fill='both', expand=True)
         table.place(in_=tableFrame)
+        map.place(relx=0.68, rely=0.18, anchor="n")
         back.place(relx=0.5, rely=0.95, anchor="center")
         
         self.app.bind("<Return>", lambda event: [self.frame.destroy(), self.scanScreen()])
