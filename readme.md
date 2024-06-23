@@ -1,4 +1,4 @@
-# Sniffer Application
+# GeoKnocker Application
 
 ## Introduction
 
