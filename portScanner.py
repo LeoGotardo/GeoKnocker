@@ -91,6 +91,29 @@ if __name__ == '__main__':
         scanner = PortScan()
         scanner.scanPorts(ip, port_option)
 
+    elif len(sys.argv) == 3 or 5 and sys.argv[2].lower() == '-g':
+        if sys.argv[3].lower() == '-a':
+            ip = sys.argv[1]
+            port_option = str(sys.argv[3])
+            start_port = int(sys.argv[4])
+            end_port = int(sys.argv[5])
+            scanner = PortScan()
+            scanner.scanPorts(ip, port_option, start_port, end_port)
+            locate = geoLocate()
+            locate.getGeo(ip)
+
+        elif sys.argv[3].lower() == '-m':
+            ip = sys.argv[1]
+            port_option = str(sys.argv[3])
+            scanner = PortScan()
+            scanner.scanPorts(ip, port_option)
+            locate = geoLocate()
+            locate.getGeo(ip)
+        
+        else:
+            raise ValueError('[!] You must pass -g before the others params if you want to GeoLocate ip address!')
+
+
     elif len(sys.argv) == 5 and sys.argv[2].lower() == '-a' and sys.argv[3] == '0':
         print(f'port: {sys.argv[3]} is invalid')
 
