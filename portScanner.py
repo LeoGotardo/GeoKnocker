@@ -105,4 +105,5 @@ if __name__ == '__main__':
         print(f"""Usage:\n
                 ➜\tpython3 portScanner.py IP_Address -a (for all ports)\n
                 ➜\tpython3 portScanner.py IP_Address -a start_port end_port\n
-                ➜\tpython3 portScanner.py IP_Address -m (for main ports)""")
+                ➜\tpython3 portScanner.py IP_Address -m (for main ports)\n
+                ➜\tpython3 portScanner.py IP_Address -g (for geolocation)""")

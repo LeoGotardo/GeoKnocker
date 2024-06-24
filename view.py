@@ -121,9 +121,9 @@ class View(ctk.CTk):
                 msg.showerror(title="Error", message="Please fill in all fields.")
                 return
             
-            self.thread = CustomThread(target=self.scanner.scanPorts, kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'})
-        else:
-            self.thread = CustomThread(target=self.scanner.scanPorts, kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'})
+        kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'}
+        
+        self.thread = CustomThread(target=self.scanner.scanPorts, args=kwargs)
             
         if host == '':
             msg.showerror(title="Error", message="Please fill host field.")
