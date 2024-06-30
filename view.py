@@ -123,7 +123,7 @@ class View(ctk.CTk):
             
         kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'}
         
-        self.thread = CustomThread(target=self.scanner.scanPorts, args=kwargs)
+        self.thread = CustomThread(target=self.scanner.scanPorts, args=(kwargs))
             
         if host == '':
             msg.showerror(title="Error", message="Please fill host field.")
@@ -140,6 +140,7 @@ class View(ctk.CTk):
         if self.thread.is_alive():
             self.app.after(200, self.isalive)
         else:
+            print(self.thread.join())
             self.open_ports, self.geo = self.thread.join()
             
             if type(self.geo) == str:
