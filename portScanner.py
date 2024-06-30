@@ -5,13 +5,18 @@ import socket
 import sys
 import os
 
+
+import socket
+import requests
+import os
+from alive_progress import alive_bar
+
 class PortScan:
     @staticmethod
     def scanPorts(kwargs):
         os.system('cls' if os.name == 'nt' else 'clear')
 
         try:
-            # Resolve the IP address or hostname
             addr_info = socket.getaddrinfo(kwargs['ip'], None)
             ip_address = addr_info[0][4][0]
             print(f"IP Address: {ip_address}\n")
@@ -31,7 +36,6 @@ class PortScan:
                 with alive_bar(len(ports), title="Knocking doors...") as bar:
                     for port in ports:
                         try:
-                            # Create a socket based on the address family (IPv4 or IPv6)
                             family = addr_info[0][0]
                             with socket.socket(family, socket.SOCK_STREAM) as s:
                                 s.settimeout(0.8)
@@ -60,7 +64,6 @@ class PortScan:
             print(f"Error: {e}")
             return [e, None]
 
-
 class geoLocate:
     @staticmethod
     def getGeo(ip):
@@ -85,6 +88,7 @@ class geoLocate:
                 return f"[!] Error: {error}"
         except Exception as e:
             return f"[!] Error: {e}"
+
 
 
 

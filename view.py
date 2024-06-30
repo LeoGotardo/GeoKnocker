@@ -42,24 +42,6 @@ class View(ctk.CTk):
         self.app.mainloop()
         
     def theme(self, button):
-        """
-        Toggles between dark and light themes.
-
-        Args:
-            self: The instance of the class.
-            button (Tkinter.Button): Button widget used to toggle the theme.
-
-        Functionality:
-            - Checks the current theme mode.
-            - If the current mode is 'dark':
-                - Sets the appearance mode to 'light'.
-                - Changes the button image to indicate the light theme.
-                - Updates the mode attribute to 'light'.
-        - If the current mode is 'light':
-                - Sets the appearance mode to 'dark'.
-                - Changes the button image to indicate the dark theme.
-                - Updates the mode attribute to 'dark'.
-        """
         if self.mode == 'dark':
             ctk.set_appearance_mode('light')
             button.configure(image=self.dark)
@@ -70,26 +52,11 @@ class View(ctk.CTk):
             self.mode = 'dark'
 
     def askClose(self): 
-        """
-        Prompts the user to confirm the application's exit.
-
-        Args:
-            self: The instance of the class.
-
-        Functionality:
-            - Prompts the user to confirm the application's exit.
-            - If the user confirms the exit, the application is closed.
-            - If the user cancels the exit, the application remains open.
-        """
         response = msg.askyesno(title="Exit?", message="Are you sure you want to exit?")
-        if response == True:
-            if self.thread is not None:
-                if self.thread.is_alive():
-                    self.thread.raise_exception()
+        if response:
+            if self.thread is not None and self.thread.is_alive():
+                self.thread.raise_exception()
             self.app.destroy()
-        else:
-            pass
-
 
     def scan(self):
         host = self.host.get()
@@ -97,7 +64,7 @@ class View(ctk.CTk):
         finalPort = self.finalPort.get()
         port_mode = self.switchVar.get()
         
-        if self.switchVar == '-a':
+        if port_mode == '-a':
             try:
                 initialPort = int(initialPort)
                 finalPort = int(finalPort)
@@ -105,65 +72,57 @@ class View(ctk.CTk):
                 msg.showerror(title="Error", message="Please enter valid numbers.")
                 return
             
-            if initialPort == 0 or finalPort == 0:
+            if initialPort == 0 or finalPort == 0 or initialPort > finalPort or initialPort < 1 or finalPort > 65535:
                 msg.showerror(title="Error", message="Please enter a valid port range.")
                 return
-            
-            if initialPort > finalPort:
-                msg.showerror(title="Error", message="Initial port must be less than final port.")
-                return
 
-            if initialPort < 1 or finalPort > 65535:
-                msg.showerror(title="Error", message="Ports must be between 1 and 65535.")
-                return
+        kwargs = {'ip': host, 'port_option': port_mode, 'geo': '-g'}
+        if port_mode == '-a':
+            if initialPort != '' and finalPort != '':  
+                kwargs['rangePorts'] = [initialPort, finalPort]
 
-            if initialPort == '' or finalPort == '':
-                msg.showerror(title="Error", message="Please fill in all fields.")
-                return
-            
-        kwargs={'ip': host, 'port_option': port_mode, 'range_ports': [initialPort, finalPort], 'geo': '-g'}
         
-        self.thread = CustomThread(target=self.scanner.scanPorts, args=(kwargs))
-            
-        if host == '':
+        self.thread = CustomThread(target=self.scanner.scanPorts, args=(kwargs,))
+        
+        if not host:
             msg.showerror(title="Error", message="Please fill host field.")
             return
         
         self.thread.start()
-        
         self.frame.destroy()
         self.loading()
         self.app.after(200, self.isalive)
-        
         
     def isalive(self):
         if self.thread.is_alive():
             self.app.after(200, self.isalive)
         else:
-            print(self.thread.join())
-            self.open_ports, self.geo = self.thread.join()
+            result = self.thread.join()
+
+            if result is not None:
+                self.open_ports, self.geo = result
             
-            if type(self.geo) == str:
-                self.geo = {'lat':'-15.2480952 ','lon':'-124.1015625', 'city':'No Location', 'country':'Unknown'}
+                if isinstance(self.geo, str):
+                    self.geo = {'lat': '-15.2480952', 'lon': '-124.1015625', 'city': 'No Location', 'country': 'Unknown'}
+                    self.loadingComplete()
+                    self.showPorts()
+                    return
+                
+                if not self.open_ports:
+                    msg.showerror(title="Error", message="No ports opened.")
+                    self.loadingComplete()
+                    self.scanScreen()
+                    return
+            
+                if isinstance(self.open_ports, str):
+                    msg.showerror(title="Error", message=self.open_ports)
+                    self.loadingComplete()
+                    self.scanScreen()
+                    return
+            
+                self.open_ports.insert(0, self.title)
                 self.loadingComplete()
                 self.showPorts()
-                return
-            
-            if self.open_ports == []:
-                msg.showerror(title="Error", message="No ports opened.")
-                self.loadingComplete()
-                self.scanScreen()
-                return
-        
-            if type(self.open_ports) == str:
-                msg.showerror(title="Error", message=self.open_ports)
-                self.loadingComplete()
-                self.scanScreen()
-                return
-        
-            self.open_ports.insert(0, self.title)
-            self.loadingComplete()
-            self.showPorts()
     
     
     def loadingComplete(self):
@@ -172,20 +131,6 @@ class View(ctk.CTk):
     
     
     def loading(self):
-        """
-        Sets up the loading page for displaying a loading animation.
-
-        Args:
-            self: The instance of the class.
-
-        Functionality:
-            - Creates and configures the loading frame.
-            - Sets the title for the application window.
-            - Creates a loading animation using the tkinter.Animation module.
-            - Creates a button for exiting the application.
-            - Binds the Return key to trigger the exit method when pressed.
-            - Places all widgets within the loading frame with appropriate configurations.
-        """
         self.loadingFrame = ctk.CTkFrame(master=self.app)
         self.app.title("Loading...")
         self.loadingFrame.place(relx=0.5, rely=0.5, anchor="center")
@@ -208,7 +153,6 @@ class View(ctk.CTk):
         title.pack(padx=100, pady=5)
         wait.pack(padx=50, pady=0)
         self.loadingbar.pack(padx=50, pady=10)
-
 
     def scanScreen(self):
         self.frame = ctk.CTkFrame(master=self.app, width=400, height=500)
@@ -328,7 +272,6 @@ class View(ctk.CTk):
         changeTheme.place(relx=0.5, rely=0.95, anchor="center")
         
         self.app.bind("<Return>", lambda event: self.scan())
-        
     
     def showPorts(self):
         self.frame.destroy()
@@ -367,6 +310,7 @@ class View(ctk.CTk):
             corner_radius=20,
         )
         
+        print(self.geo)
         map.set_position(float(self.geo['lat']), float(self.geo['lon']), marker=True, text='{}, {}'.format(self.geo['city'], self.geo['country']))
         map.set_zoom(15)
         
