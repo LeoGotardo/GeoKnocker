@@ -19,6 +19,8 @@ class View(ctk.CTk):
         
         self.white = ctk.CTkImage(dark_image=img.open("icons/White.ico"))
         self.dark = ctk.CTkImage(dark_image=img.open("icons/Dark.ico"))
+
+        ctk.set_appearance_mode('dark')
         
         self.host = tk.StringVar()
         self.initialPort = tk.StringVar()
@@ -45,9 +47,13 @@ class View(ctk.CTk):
         if self.mode == 'dark':
             ctk.set_appearance_mode('light')
             button.configure(image=self.dark)
+            self.priColor = "#FFFFFF"
+            self.secColor = "#ECECEC"
             self.mode = 'light'
         else:
             ctk.set_appearance_mode('dark')
+            self.priColor = "#1f1f1f"
+            self.secColor = "#171717"
             button.configure(image=self.white)
             self.mode = 'dark'
 
@@ -155,6 +161,7 @@ class View(ctk.CTk):
         self.loadingbar.pack(padx=50, pady=10)
 
     def scanScreen(self):
+        self.app.geometry("400x500")
         self.frame = ctk.CTkFrame(master=self.app, width=400, height=500)
         self.frame.pack(fill="both", expand=True)
 
@@ -300,7 +307,7 @@ class View(ctk.CTk):
             column=2,
             values=self.open_ports,
             width=125,
-            colors=[self.priColor,'#292b29']
+            colors=[self.priColor, self.secColor]
         )
         
         map = tkmap.TkinterMapView(
