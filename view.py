@@ -33,7 +33,7 @@ class View(ctk.CTk):
         self.secColor = "#171717"
         
         self.app.iconbitmap(default="icons/icon.ico")
-        self.app.title("Sniffer")
+        self.app.title("GeoKnocker")
         self.app.geometry("400x500")
         self.app.resizable(False, False)
         self.mode = 'dark'
@@ -167,7 +167,7 @@ class View(ctk.CTk):
 
         title = ctk.CTkLabel(
             self.frame,
-            text="Sniffer",
+            text="GeoKnocker",
             font=("Helvetica", 40, "italic"),
         )
         
@@ -283,6 +283,7 @@ class View(ctk.CTk):
     def showPorts(self):
         self.frame.destroy()
         self.app.geometry("900x600")
+        self.app.title("GeoKnocker")
         self.frame = ctk.CTkFrame(master=self.app, width=400, height=500)
         self.frame.pack(fill="both", expand=True)
         
