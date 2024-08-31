@@ -7,6 +7,7 @@ from icecream import ic
 
 import tkintermapview as tkmap
 import customtkinter as ctk
+import pyperclip as pc
 import tkinter as tk
 
 
@@ -42,6 +43,10 @@ class View(ctk.CTk):
         
         self.scanScreen()
         self.app.mainloop()
+
+    def copy(self):
+        pc.copy(self.geo)
+        msg.showinfo(title="Info", message="Copied to clipboard.")
         
     def theme(self, button):
         if self.mode == 'dark':
@@ -333,13 +338,26 @@ class View(ctk.CTk):
             height=40,
             width=100
         )
+
+        info = ctk.CTkButton(
+            master=self.frame,
+            text="Get full info",
+            command=lambda:[self.copy()],
+            font=("RobotoSlab", 12),
+            corner_radius=20,
+            fg_color=self.priColor,
+            hover_color=self.secColor,
+            height=40,
+            width=100
+        )
         
         title.place(relx=0.5, rely=0.1, anchor="center")
         tableFixFrame.place(relx=0.2, rely=0.18, anchor="n")
         tableFrame.pack(fill='both', expand=True)
         table.place(in_=tableFrame)
         map.place(relx=0.68, rely=0.18, anchor="n")
-        back.place(relx=0.5, rely=0.95, anchor="center")
+        back.place(relx=0.4, rely=0.95, anchor="e")
+        info.place(relx=0.6, rely=0.95, anchor="w")
         
         self.app.bind("<Return>", lambda event: [self.frame.destroy(), self.scanScreen()])
         
